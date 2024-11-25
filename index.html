@@ -96,9 +96,6 @@ button:hover {
       document.getElementById('mulai').addEventListener('click', function() {
     window.location.href = 'level.html';
 });
-    document.getElementById('mulai').addEventListener('click', function() {
-    alert('Mulai clicked!');
-});
 
 document.getElementById('tentang').addEventListener('click', function() {
     alert('Tentang clicked!');
@@ -112,7 +109,23 @@ function enforceLandscape() {
     } else {
         document.querySelector('.chalkboard').style.transform = 'rotate(0deg)';
         document.querySelector('.chalkboard').style.width = '100%';
-        document.querySelector('.
+        document.querySelector('.chalkboard').style.height = '100%';
+    }
+}
+
+window.addEventListener('resize', enforceLandscape);
+window.addEventListener('load', enforceLandscape);
+
+document.documentElement.requestFullscreen().catch(function (err) {
+    console.log(err);
+});
+
+window.addEventListener('load', function() {
+    var backsound = document.getElementById('backsound');
+    backsound.play().catch(function (err) {
+        console.log(err);
+    });
+});
   </script>
 </body>
 </html>
