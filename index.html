@@ -93,8 +93,8 @@ button:hover {
         </div>
     </div>
   <script type="text/javascript" charset="utf-8">
-      document.getElementById('mulai').addEventListener('click', function() {
-    window.location.href = 'level.html';
+    document.getElementById('mulai').addEventListener('click', function() {
+    alert('Mulai clicked!');
 });
 
 document.getElementById('tentang').addEventListener('click', function() {
@@ -109,23 +109,7 @@ function enforceLandscape() {
     } else {
         document.querySelector('.chalkboard').style.transform = 'rotate(0deg)';
         document.querySelector('.chalkboard').style.width = '100%';
-        document.querySelector('.chalkboard').style.height = '100%';
-    }
-}
-
-window.addEventListener('resize', enforceLandscape);
-window.addEventListener('load', enforceLandscape);
-
-document.documentElement.requestFullscreen().catch(function (err) {
-    console.log(err);
-});
-
-window.addEventListener('load', function() {
-    var backsound = document.getElementById('backsound');
-    backsound.play().catch(function (err) {
-        console.log(err);
-    });
-});
+        document.querySelector('.
   </script>
 </body>
 </html>
