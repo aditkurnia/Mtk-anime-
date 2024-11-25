@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
+        }
+        
+        .game-container {
+            width: 800px;
+            height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chalkboard {
+            background: #2a5e2a;
+            height: 70%;
+            padding: 20px;
+            color: white;
+            font-size: 32px;
+            position: relative;
+            border: 15px solid #8b4513;
+        }
+        
+        .teacher-container {
+            position: absolute;
+            left: 50px;
+            bottom: 300px;
+            width: 50px;
+            height: 100px;
+        }
+        
+        .question {
+            font-size: 48px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        .options {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #1e88e5;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .option {
+            background: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 30px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        .option:hover {
+            transform: scale(1.05);
+        }
+        
+        .feedback {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+        }
+        
+        .progress {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .restart-btn {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="chalkboard">
+            <div class="progress">Question <span id="current-question">1</span>/10</div>
+            <div class="feedback"></div>
+            <div class="question"></div>
+        </div>
+        <div class="teacher-container">
+            <img src="bu.png" alt="Teacher" />
+        </div>
+        <div class="options"></div>
+        <div class="game-over">
+            <h2>Game Over!</h2>
+            <p>Your score: <span class="final-score">0</span>/10</p>
+            <button class="restart-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        class MathGame {
+            constructor() {
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.questions = this.generateQuestions();
+                
+                this.questionEl = document.querySelector('.question');
+                this.optionsEl = document.querySelector('.options');
+                this.progressEl = document.getElementById('current-question');
+                this.feedbackEl = document.querySelector('.feedback');
+                this.gameOverEl = document.querySelector('.game-over');
+                this.finalScoreEl = document.querySelector('.final-score');
+                
+                document.querySelector('.restart-btn').addEventListener('click', () => this.restart());
+                
+                this.showQuestion();
+            }
+            
+            generateQuestions() {
+                const questions = [];
+                // Generate 5 multiplication and 5 division questions
+                for (let i = 0; i < 5; i++) {
+                    // Multiplication
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    questions.push({
+                        question: `${num1} × ${num2} = ?`,
+                        answer: num1 * num2,
+                        type: 'multiplication'
+                    });
+                    
+                    // Division
+                    const dividend = Math.floor(Math.random() * 50) + 10;
+                    const divisor = Math.floor(Math.random() * 9) + 2;
+                    const quotient = Math.floor(dividend / divisor);
+                    questions.push({
+                        question: `${dividend} ÷ ${divisor} = ?`,
+                        answer: quotient,
+                        type: 'division'
+                    });
+                }
+                return this.shuffleArray(questions);
+            }
+            
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            generateOptions(answer) {
+                const options = [answer];
+                while (options.length < 4) {
+                    const offset = Math.floor(Math.random() * 10) - 5;
+                    const option = answer + offset;
+                    if (!options.includes(option) && option > 0) {
+                        options.push(option);
+                    }
+                }
+                return this.shuffleArray(options);
+            }
+            
+            showQuestion() {
+                const question = this.questions[this.currentQuestion];
+                this.questionEl.textContent = question.question;
+                this.progressEl.textContent = this.currentQuestion + 1;
+                
+                const options = this.generateOptions(question.answer);
+                this.optionsEl.innerHTML = '';
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option';
+                    button.textContent = option;
+                    button.addEventListener('click', () => this.checkAnswer(option));
+                    this.optionsEl.appendChild(button);
+                });
+            }
+            
+            checkAnswer(selectedAnswer) {
+                const correctAnswer = this.questions[this.currentQuestion].answer;
+                if (selectedAnswer === correctAnswer) {
+                    this.score++;
+                    this.feedbackEl.textContent = 'Correct!';
+                    this.feedbackEl.style.color = '#4caf50';
+                } else {
+                    this.feedbackEl.textContent = 'Wrong!';
+                    this.feedbackEl.style.color = '#f44336';
+                }
+                
+                setTimeout(() => {
+                    this.feedbackEl.textContent = '';
+                    this.currentQuestion++;
+                    
+                    if (this.currentQuestion < this.questions.length) {
+                        this.showQuestion();
+                    } else {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+            
+            endGame() {
+                this.gameOverEl.style.display = 'flex';
+                this.finalScoreEl.textContent = this.score;
+            }
+            
+            restart() {
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.questions = this.generateQuestions();
+                this.gameOverEl.style.display = 'none';
+                this.showQuestion();
+            }
+        }
+        
+        // Start the game
+        const game = new MathGame();
+    </script>
+</body>
+</html>
